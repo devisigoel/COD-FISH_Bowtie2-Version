@@ -18,7 +18,7 @@ import gzip
 import pandas as pd
 import primer3
 
-import FISH_probe_design_6_1_utils as utils
+import utils_COD_FISH as utils
 
 import multiprocessing as mp
 # Changes working directory to where the script is so everything lines up well and the directory creation doesn't cause problems
