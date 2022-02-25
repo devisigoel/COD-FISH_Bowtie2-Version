@@ -37,11 +37,11 @@ Here are the variables defined by the configuration file:
 7. Transcriptome Index (transcriptome_index) - The location and name of the transcriptome index created for Bowtie2 alignment (default is species.(chosen species)/bt2_index)
 8. Transcriptome File (transcriptome_file) - The location and name of the transcriptome file created for Bowtie2 alignment (default is species.(chosen species)/transcriptome.fa)
 9. Heterodimer Melting Temperature Estimation Method (Heterodimer_melting_temperature_estimation_method) - The method by which the heterodimer melting temeprature estimation can occur. There are two possible methods (default is Primer3):
-        a) Tm - In this method, the Primer3 package is used to estimate the melting temperature of the probe to the competing RNA, and then from this an specifity score is calculated
-        b) Alignment - In this method, the "AS:i:" section of the SAM file created from the bowtie2 alignment is used as the score for the heterodimer of the probe to the competing RNA, and then from this a specifity score is calculated
+	a) Tm - In this method, the Primer3 package is used to estimate the melting temperature of the probe to the competing RNA, and then from this an specifity score is calculated
+	b) Alignment - In this method, the "AS:i:" section of the SAM file created from the bowtie2 alignment is used as the score for the heterodimer of the probe to the competing RNA, and then from this a specifity score is calculated
 10. Probe Set Selection Method (Probe_set_selection_method) - The method by which the probe set is selected from a list of probes and their corresponding specifity scores. There are two possible probe set selection methods (default is Greedy Method):
-        a) Dynamic - Modeled on Dijkstra's algorithm, this method utilizes a token-passing system and dynamic programming to determine the optimal set of probes
-        b) Greedy - Chooses the highest scoring probe, and then goes through the list to find the second highest-scoring probe, and so on and so forth, while taking the overlap into account.
+	a) Dynamic - Modeled on Dijkstra's algorithm, this method utilizes a token-passing system and dynamic programming to determine the optimal set of probes
+	b) Greedy - Chooses the highest scoring probe, and then goes through the list to find the second highest-scoring probe, and so on and so forth, while taking the overlap into account.
 11. Temp Directiory (temp_dir) - The location and name of the temp directory (default is ./temp/)
 12. Output Directory (output_dir) - The location and name of the output directory (default is ./output_finalProbes/)
 
