@@ -71,20 +71,20 @@ Additional arguements can be found by running
 
 and are shown below:
 
-  --transcripts_file/-fa        Full path of Fasta file name with target mRNAs, 
-                                        write down all target mRNAs in a fasta file
-  --ensembl_ids/-ids            List of ensembl gene IDs [List of ensembl gene IDs ...]
-                                        list any number of ensembl gene IDs separated by a space (case sensitive!)
-  --gene_symbols/-g             List of gene symbols [List of gene symbols ...]
-                                        list any number of gene names separated by a space (case sensitive!)
-  --gene_symbol_file/-gf        File of gene symbols
-                                        file containing a list of genes to process, each gene symbol should be on a separate line
-  --species/-s Species name
-                                Write down the species you want to use
-  --advanced/-a                 Advanced boolean
-                                        If specified will let user chose config file criteria
-  --bowtie2/-bt2                Bowtie2 path if not in $PATH,  Bowtie2 path if not in $PATH
-                                        If Bowtie2 is not a PATH variable then you can specify where the installed bowtie2 is here
-  --seed_length/-L Seed Length
-                                Length of the seed length used on the probe sequences when aligning to the reanscriptome, lower is more specific but
-                                        with diminishing returns, default is 15
+	$  --transcripts_file/-fa        Full path of Fasta file name with target mRNAs, 
+	$                                        write down all target mRNAs in a fasta file
+	$  --ensembl_ids/-ids            List of ensembl gene IDs [List of ensembl gene IDs ...]
+	$                                        list any number of ensembl gene IDs separated by a space (case sensitive!)
+	$  --gene_symbols/-g             List of gene symbols [List of gene symbols ...]
+	$                                        list any number of gene names separated by a space (case sensitive!)
+	$  --gene_symbol_file/-gf        File of gene symbols
+	$                                        file containing a list of genes to process, each gene symbol should be on a separate line
+	$  --species/-s Species name
+	$                                Write down the species you want to use
+	$  --advanced/-a                 Advanced boolean
+	$                                        If specified will let user chose config file criteria
+	$  --bowtie2/-bt2                Bowtie2 path if not in $PATH,  Bowtie2 path if not in $PATH
+	$                                        If Bowtie2 is not a PATH variable then you can specify where the installed bowtie2 is here
+	$  --seed_length/-L Seed Length
+	$                                Length of the seed length used on the probe sequences when aligning to the reanscriptome, lower is more specific but
+	$                                        with diminishing returns, default is 15
