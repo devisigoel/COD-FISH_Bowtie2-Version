@@ -295,6 +295,8 @@ def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict,
             print(aligned_transcript_seq)
               
         aln_tm = (primer3.calcHeterodimer(probe_seq, aligned_transcript_seq_fragment).tm + 273)/(primer3.calcTm(probe_seq) + 273) + 1
+        if aligned_ensembl_transcript_id.startswith('rRNA'):
+            aln_tm = 20*aln_tm
         offtarget_TM_scores[probe_name] = aln_tm + offtarget_match_scores[probe_name]
 
     offTarget_TM_scoresList = list(offtarget_match_scores.items())
