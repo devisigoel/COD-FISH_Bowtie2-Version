@@ -248,7 +248,7 @@ def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict,
     offtarget_TM_scores = {}
     for aln in sam_data:
         probe_name = aln[0]
-        if probe_name not in offtarget_match_scores:
+        if probe_name not in offtarget_TM_scores:
             offtarget_TM_scores[probe_name] = 0
         probe_seq = reverse_Complement(aln[9])
         alignment_pos = int(aln[3]) - 1 # since it's one-based counting
@@ -297,9 +297,9 @@ def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict,
         aln_tm = (primer3.calcHeterodimer(probe_seq, aligned_transcript_seq_fragment).tm + 273)/(primer3.calcTm(probe_seq) + 273) + 1
         if aligned_ensembl_transcript_id.startswith('rRNA'):
             aln_tm = 20*aln_tm
-        offtarget_TM_scores[probe_name] = aln_tm + offtarget_match_scores[probe_name]
+        offtarget_TM_scores[probe_name] = aln_tm + offtarget_TM_scores[probe_name]
 
-    offTarget_TM_scoresList = list(offtarget_match_scores.items())
+    offTarget_TM_scoresList = list(offtarget_TM_scores.items())
     #offTarget_TM_scoresList.sort(key=lambda p: p[1], reverse=False)
     
     keyfun =  functools.cmp_to_key(compare)
