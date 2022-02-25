@@ -82,9 +82,10 @@ if os.path.exists("config.py"):
         species = brief_to_ensembl_dict[args.species]
     else: 
         species = args.species
-    if config.species != species:
-        raise Exception("The current config.py file is not made for the species input by the --species/-s argument.\n \
-                        Either delete the config.py and generate the appropriate species directory and config.py file, or if the species directory is already fully made, then change the config.py file to chose this species.")
+    if species:
+        if config.species != species:
+            raise Exception("The current config.py file is not made for the species input by the --species/-s argument.\n \
+                            Either delete the config.py and generate the appropriate species directory and config.py file, or if the species directory is already fully made, then change the config.py file to chose this species.")
 else:
     if args.species in species_brief:
         species = brief_to_ensembl_dict[args.species]
