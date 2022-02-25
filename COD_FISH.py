@@ -225,14 +225,14 @@ else:
         f.write("Tm_hairpin = 330 #Maximum melting temperature of the hairpin of probes in Kelvin\n\n")
 
     if advanced_flag: 
-        f.write("Heterodimer_melting_temperature_estimation_method = " +str(input("Please enter 'Tm' or 'Alignment' to indicate which method you would like to use to evaluate your probes?")))
+        f.write("Heterodimer_melting_temperature_estimation_method = \"" +str(input("Please enter 'Tm' or 'Alignment' to indicate which method you would like to use to evaluate your probes?"))+"\"")
     else:
-        f.write("Heterodimer_melting_temperature_estimation_method = Primer3\n")
+        f.write("Heterodimer_melting_temperature_estimation_method = \"Tm\"\n")
     
     if advanced_flag:
-        f.write("Probe_set_selection_method = " + str(input("Please enter 'Dynamic' or 'Greedy' to indicate which probe selection selection you would like to use.")))
+        f.write("Probe_set_selection_method = \"" + str(input("Please enter 'Dynamic' or 'Greedy' to indicate which probe selection selection you would like to use."))+"\"")
     else:
-        f.write("Probe_set_selection_method = Greedy Method\n")
+        f.write("Probe_set_selection_method = \"Greedy\"\n")
 
     f.write("#Filter repeating nucleotides, AAAAA, GGGG, CCCC, TTTTT\n")
     f.write("filter_repeats = True\n")

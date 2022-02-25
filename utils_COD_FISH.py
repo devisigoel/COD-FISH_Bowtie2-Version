@@ -241,7 +241,7 @@ def compute_offtarget_scores_matches(sam_data, target_ensembl_id, probe_len):
     keyfun =  functools.cmp_to_key(compare)
     offTarget_match_scoresList.sort(key=keyfun)
 
-     return(offTarget_match_scoresList)
+    return(offTarget_match_scoresList)
 
 def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict, probe_len):
     print('Calculating probe candidate off-target scores\n')
