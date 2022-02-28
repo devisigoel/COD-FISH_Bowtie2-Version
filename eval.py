@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Usage: python eval.py blastresult.blast.txt transcriptome.fa ENST00000245105_probes.fa SH3TC1 ENST00000245105.8 
+
 import os, sys, re
 from Bio.SeqUtils import MeltingTemp
 import primer3
