@@ -36,11 +36,11 @@ Here are the variables defined by the configuration file:
 6. Nucleotide Repetition Filter (filter_repeats) - The filtration of probes based on the repetition of nucleotides (default is True)
 7. Transcriptome Index (transcriptome_index) - The location and name of the transcriptome index created for Bowtie2 alignment (default is species.(chosen species)/bt2_index)
 8. Transcriptome File (transcriptome_file) - The location and name of the transcriptome file created for Bowtie2 alignment (default is species.(chosen species)/transcriptome.fa)
-9. Heterodimer Melting Temperature Estimation Method (Heterodimer_melting_temperature_estimation_method) - The method by which the heterodimer melting temeprature estimation can occur. There are two possible methods (default is Primer3):
+9. Heterodimer Melting Temperature Estimation Method (Heterodimer_melting_temperature_estimation_method) - The method by which the heterodimer melting temeprature estimation can occur. There are two possible methods (default is Tm):
 	
-	a) Tm - In this method, the Primer3 package is used to estimate the melting temperature of the probe to the competing RNA, and then from this an specifity score is calculated
+	a) Tm - In this method, the Primer3 package is used to estimate the melting temperature of the probe to the competing RNA, and then from this a specifity score is calculated
 	
-	b) Alignment - In this method, the "AS:i:" section of the SAM file created from the bowtie2 alignment is used as the score for the heterodimer of the probe to the competing RNA, and then from this a specifity score is calculated
+	b) Alignment - In this method, the "AS:i:" section of the SAM file created from the bowtie2 alignment (which counts the number of matching nucleotides) is used as the score for the heterodimer of the probe to the competing RNA, and then from this a specifity score is calculated
 	
 10. Probe Set Selection Method (Probe_set_selection_method) - The method by which the probe set is selected from a list of probes and their corresponding specifity scores. There are two possible probe set selection methods (default is Greedy Method):
 	
