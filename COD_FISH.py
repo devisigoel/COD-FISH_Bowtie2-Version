@@ -18,7 +18,7 @@ import gzip
 import pandas as pd
 import primer3
 
-import utils_COD_FISH as utils
+import COD_FISH_utils as utils
 
 import multiprocessing as mp
 # Changes working directory to where the script is so everything lines up well and the directory creation doesn't cause problems
@@ -78,14 +78,6 @@ if os.path.exists("config.py"):
     sys.path.insert(0, os.getcwd())
     import config 
     print('Using config file made at: '+config.time_made+'\nfor the species: '+config.species)
-    if args.species in species_brief:
-        species = brief_to_ensembl_dict[args.species]
-    else: 
-        species = args.species
-    if species:
-        if config.species != species:
-            raise Exception("The current config.py file is not made for the species input by the --species/-s argument.\n \
-                            Either delete the config.py and generate the appropriate species directory and config.py file, or if the species directory is already fully made, then change the config.py file to chose this species.")
 else:
     if args.species in species_brief:
         species = brief_to_ensembl_dict[args.species]
@@ -233,14 +225,14 @@ else:
         f.write("Tm_hairpin = 330 #Maximum melting temperature of the hairpin of probes in Kelvin\n\n")
 
     if advanced_flag: 
-        f.write("Heterodimer_melting_temperature_estimation_method = \"" +str(input("Please enter 'Tm' or 'Alignment' to indicate which method you would like to use to evaluate your probes?"))+"\"")
+        f.write("Heterodimer_melting_temperature_estimation_method = " +str(input("Please enter Primer3 or Alignment to indicate which method you would like to use to evaluate your probes?")))
     else:
-        f.write("Heterodimer_melting_temperature_estimation_method = \"Tm\"\n")
+        f.write("Heterodimer_melting_temperature_estimation_method = Primer3\n")
     
     if advanced_flag:
-        f.write("Probe_set_selection_method = \"" + str(input("Please enter 'Dynamic' or 'Greedy' to indicate which probe selection selection you would like to use."))+"\"")
+        f.write("Probe_set_selection_method = " + str(input("Please enter Dynamic Programming or Greedy Method to indicate which probe selection selection you would like to use.")))
     else:
-        f.write("Probe_set_selection_method = \"Greedy\"\n")
+        f.write("Probe_set_selection_method = Greedy Method\n")
 
     f.write("#Filter repeating nucleotides, AAAAA, GGGG, CCCC, TTTTT\n")
     f.write("filter_repeats = True\n")
@@ -367,11 +359,11 @@ for transcript in transcript_targets:
     
     if config.Heterodimer_melting_temperature_estimation_method == "Alignment": 
         offtarget_Tm_scores_list = utils.compute_offtarget_scores_matches(sam_data, transcript, probe_len)
-    elif config.Heterodimer_melting_temperature_estimation_method == "Tm":
+    elif config.Heterodimer_melting_temperature_estimation_method == "Primer3":
         offtarget_Tm_scores_list = utils.compute_offtarget_scores_tm(sam_data, transcript, transcriptome_dict, probe_len)
     else: 
         print("Unsupported heterodimer melting temperature estimation method: " , config.Heterodimer_melting_temperature_estimation_method)
-        raise Exception("Please change Heterodimer_melting_temperature_estimation_method in the config.py file to with 'Tm' or 'Alignment'")  
+        sys.exit()    
 
     probe_scores_file_name = output_dir + transcript + "_probe_scores.tsv"
     probe_scores_file = open(probe_scores_file_name, 'w')
@@ -384,18 +376,19 @@ for transcript in transcript_targets:
     print('Probe set selection...')
     # Sort probes by their specificity and then remove overlapping probes
 
-    if config.Probe_set_selection_method == "Greedy":
+    if config.Probe_set_selection_method == "Greedy Method":
         final_probes, total_score_greedy = utils.select_nonoverlapping_probes(offtarget_Tm_scores_list, probe_len, num_probes)
-    elif config.Probe_set_selection_method == "Dyanmic":
+    elif config.Probe_set_selection_method == "Dynamic Programming":
+        print(transcript + "is choosing Dynamic Programming")
         final_probes_greedy, total_score_greedy = utils.select_nonoverlapping_probes(offtarget_Tm_scores_list, probe_len, num_probes)
         final_probes_ts, total_score_ts = utils.find_optimal_set(offtarget_Tm_scores_list, probe_len + 2, num_probes, final_probes_greedy, beam=2.0)
         if total_score_ts < total_score_greedy:
             final_probes = final_probes_ts
+            print(final_probes)
         else:
             final_probes = final_probes_greedy
     else: 
-        print("Unsupported probe set selection method: " , config.Probe_set_selection_method)
-        raise Exception("Please change 'Probe_set_selection_method' in the config.py file to either 'Greedy' or 'Dynamic'")
+        print("Unsupported probe set selection method: " , config.Probe_set_selection_method) 
     
     # Write the final list of probes to a fasta file and also print
     final_probe_filename = output_dir + transcript + "_probes.fa"
