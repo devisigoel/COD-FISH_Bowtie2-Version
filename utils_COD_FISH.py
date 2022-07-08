@@ -331,8 +331,8 @@ def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict,
 def make_bowtie2_index(fasta_file, bowtie2_path, threads):
     print("\nBowtie2 will now generate the index with which to align the candidate probe sequences\nUsing",threads,"threads.")
     bt2_run = subprocess.run([bowtie2_path +'-build',
-                                '--threads',str(threads),
-                                '-f', fasta_file, 
+                                '-f', fasta_file,
+                                '-p',str(threads),
                                 'bt2_index'],
                                 capture_output=True)
     return(bt2_run)   
