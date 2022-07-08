@@ -17,10 +17,10 @@ from Bio import SeqIO
 import gzip
 import pandas as pd
 import primer3
+import multiprocessing as mp
 
 import utils_COD_FISH as utils
 
-import multiprocessing as mp
 # Changes working directory to where the script is so everything lines up well and the directory creation doesn't cause problems
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -227,12 +227,12 @@ else:
     if advanced_flag: 
         f.write("Heterodimer_melting_temperature_estimation_method = " +str(input("Please enter Primer3 or Alignment to indicate which method you would like to use to evaluate your probes?")))
     else:
-        f.write("Heterodimer_melting_temperature_estimation_method = Primer3\n")
+        f.write("Heterodimer_melting_temperature_estimation_method = \"Primer3\"\n")
     
     if advanced_flag:
-        f.write("Probe_set_selection_method = " + str(input("Please enter Dynamic Programming or Greedy Method to indicate which probe selection selection you would like to use.")))
+        f.write("Probe_set_selection_method = " + str(input("Please enter Dynamic or Greedy to indicate which probe selection selection you would like to use.")))
     else:
-        f.write("Probe_set_selection_method = Greedy Method\n")
+        f.write("Probe_set_selection_method = \"Greedy\"\n")
 
     f.write("#Filter repeating nucleotides, AAAAA, GGGG, CCCC, TTTTT\n")
     f.write("filter_repeats = True\n")
@@ -259,6 +259,8 @@ else:
     sys.path.insert(0, os.getcwd())
     import config
 
+if args.species != config.species:
+    raise Exception('Error\nInput species is different from loaded config file. Please delete config.py and rerun.')
 ##############################################################################
 #  Configuration Parameters                                                  #
 ##############################################################################
@@ -376,9 +378,9 @@ for transcript in transcript_targets:
     print('Probe set selection...')
     # Sort probes by their specificity and then remove overlapping probes
 
-    if config.Probe_set_selection_method == "Greedy Method":
+    if config.Probe_set_selection_method == "Greedy":
         final_probes, total_score_greedy = utils.select_nonoverlapping_probes(offtarget_Tm_scores_list, probe_len, num_probes)
-    elif config.Probe_set_selection_method == "Dynamic Programming":
+    elif config.Probe_set_selection_method == "Dynamic":
         print(transcript + "is choosing Dynamic Programming")
         final_probes_greedy, total_score_greedy = utils.select_nonoverlapping_probes(offtarget_Tm_scores_list, probe_len, num_probes)
         final_probes_ts, total_score_ts = utils.find_optimal_set(offtarget_Tm_scores_list, probe_len + 2, num_probes, final_probes_greedy, beam=2.0)
