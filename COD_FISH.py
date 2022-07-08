@@ -227,7 +227,7 @@ else:
     if advanced_flag: 
         f.write("Heterodimer_melting_temperature_estimation_method = " +str(input("Please enter Primer3 or Alignment to indicate which method you would like to use to evaluate your probes?")))
     else:
-        f.write("Heterodimer_melting_temperature_estimation_method = Primer3\n")
+        f.write("Heterodimer_melting_temperature_estimation_method = \"Primer3\"\n")
     
     if advanced_flag:
         f.write("Probe_set_selection_method = " + str(input("Please enter 'Dynamic' or 'Greedy' to indicate which probe selection selection you would like to use.")))
