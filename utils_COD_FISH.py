@@ -331,10 +331,12 @@ def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict,
 def make_bowtie2_index(fasta_file, bowtie2_path, threads):
     print("\nBowtie2 will now generate the index with which to align the candidate probe sequences\nUsing",threads,"threads.")
     bt2_run = subprocess.run([bowtie2_path +'-build',
+                                '--threads',str(threads),
                                 '-f', fasta_file,
-                                '-p',str(threads),
                                 'bt2_index'],
                                 capture_output=True)
+    if bt2_run.returncode != 0:
+        print('Building the index didn\'t work as planned. Make sure the bowtie version you have is up to date and all the necessary files are present and in the right folders.')
     return(bt2_run)   
 
 # Align the probes with the gencode transcriptome
