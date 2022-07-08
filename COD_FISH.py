@@ -196,7 +196,11 @@ else:
 
 
     # Using the generated transcriptome file to make the bowtie2 index for alignment of probe sequences
-    utils.make_bowtie2_index('transcriptome.fa', bowtie2_path, threads)
+    if not os.path.exists('transcriptome.fa.bt2_index.1.bt2'):
+        utils.make_bowtie2_index('transcriptome.fa', bowtie2_path, threads)
+    else:
+        print('\nUsing already made bowtie2 index file.\n')
+    
     print("The bowtie2 index has successfully been made")
 
     print("The bowtie2 index is stored at bt2_index")
