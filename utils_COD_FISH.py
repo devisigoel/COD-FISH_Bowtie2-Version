@@ -227,7 +227,7 @@ def compute_offtarget_scores_matches(sam_data, target_ensembl_id, probe_len):
 
         # Punishes 20x for rRNA alignment. Should make it so these probes aren't selected
         if aligned_ensembl_transcript_id.startswith('rRNA'):
-            match_score = match_score + int(aln[11].split(':')[2])/(2*probe_len)+1000000
+            match_score = match_score + int(aln[11].split(':')[2])/(2*probe_len)+20
 
         if probe_name not in offtarget_match_scores:
             offtarget_match_scores[probe_name] = 0
@@ -246,10 +246,12 @@ def compute_offtarget_scores_matches(sam_data, target_ensembl_id, probe_len):
 def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict, probe_len):
     print('Calculating probe candidate off-target scores\n')
     offtarget_TM_scores = {}
+    offtarget_TM_compRNA = {}
     for aln in sam_data:
         probe_name = aln[0]
         if probe_name not in offtarget_TM_scores:
             offtarget_TM_scores[probe_name] = 0
+            offtarget_TM_compRNA[probe_name] = []
         probe_seq = reverse_Complement(aln[9])
         alignment_pos = int(aln[3]) - 1 # since it's one-based counting
         # Pull ensemble transcript ID from name      
@@ -286,19 +288,33 @@ def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict,
         # Use position to pull out the fragment of the transcript that aligns to the probe
         # accounts for insertions and deletions as well as soft clipping, then 2 nucleotides 
         # are added on each end for a more precise estimate of binding
-        aligned_transcript_seq_fragment = aligned_transcript_seq[alignment_pos-dict_CIGAR['S1']-2:alignment_pos+probe_len+dict_CIGAR['S2']+dict_CIGAR['I']-dict_CIGAR['D']+2]
-        if aligned_transcript_seq_fragment == '':
-            print('\n')
-            print(aln)
-            print(alignment_pos-dict_CIGAR['S1']-2)
-            print(alignment_pos+probe_len+dict_CIGAR['S2']+dict_CIGAR['I']-dict_CIGAR['D']+2)
-            print(aligned_transcript_seq)
+        
+        start_idx = alignment_pos-dict_CIGAR['S1']-2
+        if start_idx < 0:
+            start_idx = 0
+ 
+        end_idx = alignment_pos+probe_len+dict_CIGAR['S2']+dict_CIGAR['I']-dict_CIGAR['D']+2
+        if end_idx > len(aligned_transcript_seq):
+            end_idx = len(aligned_transcript_seq)
+ 
+        aligned_transcript_seq_fragment = aligned_transcript_seq[start_idx:end_idx]
+
+#        aligned_transcript_seq_fragment = aligned_transcript_seq[alignment_pos-dict_CIGAR['S1']-2:alignment_pos+probe_len+dict_CIGAR['S2']+dict_CIGAR['I']-dict_CIGAR['D']+2]
+#        if aligned_transcript_seq_fragment == '':
+#            print('\n')
+#            print(aln)
+#            print(alignment_pos-dict_CIGAR['S1']-2)
+#            print(alignment_pos+probe_len+dict_CIGAR['S2']+dict_CIGAR['I']-dict_CIGAR['D']+2)
+#            print(aligned_transcript_seq)
               
         aln_tm = (primer3.calcHeterodimer(probe_seq, aligned_transcript_seq_fragment).tm + 273)/(primer3.calcTm(probe_seq) + 273) + 1
+    
         if aligned_ensembl_transcript_id.startswith('rRNA'):
-            aln_tm = 1000000*aln_tm
+            aln_tm = aln_tm + (aln_tm + 20)       
+ 
         offtarget_TM_scores[probe_name] = aln_tm + offtarget_TM_scores[probe_name]
-
+        offtarget_TM_compRNA[probe_name].append(aligned_ensembl_transcript_id)
+ 
     offTarget_TM_scoresList = list(offtarget_TM_scores.items())
     #offTarget_TM_scoresList.sort(key=lambda p: p[1], reverse=False)
     
@@ -400,7 +416,7 @@ def reverse_Complement(seq):
 #  optimal set selection with token passing                                  #
 ##############################################################################
 def find_optimal_set(probe_score_list, overlap, output_set_size, final_probes_greedy, beam=5.0):
-    
+        
     print('Selecting optimal nonoverlapping probe set based on scoring rank\n')
 
     #STEP 1: Create an ordered list of probe numbers and score, sorted by probe numbers. 
@@ -428,6 +444,12 @@ def find_optimal_set(probe_score_list, overlap, output_set_size, final_probes_gr
     search_score_profile.append(greedy_probeidx_score[0][1])
     for ii in range(1,len(greedy_probeidx_score)):
         search_score_profile.append(search_score_profile[-1] + greedy_probeidx_score[ii][1])
+    if (len(search_score_profile) < output_set_size):
+        lastscr = search_score_profile[-1]
+        for ii in range(len(search_score_profile), output_set_size):
+            search_score_profile.append(lastscr)
+
+    print(search_score_profile)
 
 
     #STEP 3: Define a token class 
@@ -459,6 +481,7 @@ def find_optimal_set(probe_score_list, overlap, output_set_size, final_probes_gr
     for ii in range(len(token_list)):
         probe_ii = probe_dat[ii][0]
         t_list_ii = token_list[ii]
+
         for jj in range(ii+1,len(token_list)):
             probe_jj = probe_dat[jj][0]
             jj_tm = probe_dat[jj][1]
@@ -495,15 +518,22 @@ def find_optimal_set(probe_score_list, overlap, output_set_size, final_probes_gr
         if ii%100 == 0: print('optimal probe set search.  done % : ', done_work*100.0/tot_work)
     
     #STEP 6: all token propagation is done! now let's find best probe set of set_size
+    #first find out what's the max number of probes we can generate
+    num_probes_available = 0
+    for tL in token_list:
+        for tt in tL:
+            if (tt.num_probes > num_probes_available):
+                num_probes_available = tt.num_probes
+            
     bestTm = math.inf
     bestii = -1
     for ii in range(len(token_list)):
-        if (token_list[ii][output_set_size - 1].num_probes == 0): continue
-        if token_list[ii][output_set_size - 1].Tm < bestTm:
-            bestTm = token_list[ii][output_set_size - 1].Tm
+        if (token_list[ii][num_probes_available - 1].num_probes == 0): continue
+        if token_list[ii][num_probes_available - 1].Tm < bestTm:
+            bestTm = token_list[ii][num_probes_available - 1].Tm
             bestii = ii
                 
-    finaltoken = token_list[bestii][output_set_size - 1] 
+    finaltoken = token_list[bestii][num_probes_available - 1] 
 
     final_probes = [probe_dat[bestii]]
     while( finaltoken.back_ptr != -1 ):
