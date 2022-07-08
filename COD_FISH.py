@@ -270,8 +270,6 @@ else:
     sys.path.insert(0, os.getcwd())
     import config
 
-if args.species != config.species:
-    raise Exception('Error\nInput species is different from loaded config file. Please delete config.py and rerun.')
 ##############################################################################
 #  Configuration Parameters                                                  #
 ##############################################################################
