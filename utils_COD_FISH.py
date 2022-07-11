@@ -123,6 +123,28 @@ def load_gene_information(list_of_genes, species):
             Search for the gene and then look for the "Name"')
     
     return(primary_transcript_list)
+
+def load_rRNA_data(species):
+
+    print('\nLoading rRNA transcript IDs through pybiomart')
+
+    # Call the Ensemble server
+    server = pybiomart.Server(host='http://www.ensembl.org')
+    mart = server['ENSEMBL_MART_ENSEMBL']
+
+    # Convert the species name to the abbreviated name used by the ensembl biomart
+    species_abbr = ''
+    for name in range(len(species.split('_'))-1):
+        species_abbr += species.split('_')[name][0]
+    species_abbr += species.split('_')[len(species.split('_'))-1]
+
+    # Pull the dataset from the mart
+    dataset = mart[species_abbr+'_gene_ensembl']
+
+    rRNA_query_result = dataset.query(attributes=['ensembl_transcript_id','external_gene_name'], filters={'biotype':'rRNA'})
+    rRNA_list = list(rRNA_query_result['Transcript stable ID'])
+
+    return(rRNA_list)
 ##############################################################################
 # Create Probe Possibilities, filter by Tm and Tm_hairpin                    #
 ##############################################################################
