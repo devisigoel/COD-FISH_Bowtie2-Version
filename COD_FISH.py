@@ -140,59 +140,12 @@ else:
     else:
         print("ncRNA file already downloaded")
 
-    
-    if not os.path.exists('../rRNA_SSU.fa.gz'):
-        print("Downloading the rRNA SSU files\n")
-        subprocess.run(['curl', 'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138.1_SSURef_NR99_tax_silva.fasta.gz',
-                    '-o', '../rRNA_SSU.fa.gz'])
-    else:
-        print("rRNA LSU file already downloaded")
-
-    if not os.path.exists('../rRNA_LSU.fa.gz'):
-        print("Downloading the rRNA LSU files\n")
-        subprocess.run(['curl', 'https://www.arb-silva.de/fileadmin/silva_databases/current/Exports/SILVA_138.1_LSURef_NR99_tax_silva.fasta.gz',
-                    '-o', '../rRNA_LSU.fa.gz'])
-    else:
-        print("rRNA LSU file already downloaded")
-
-    SILVA_species_name = species.split("_")[0].capitalize() +" "+ species.split("_")[1]
-
-    if not os.path.exists('filtered_rRNA_SSU_DNA.fa'):
-        with open("filtered_rRNA_SSU.fa", 'w') as filtered_rRNA_SSU:
-            with gzip.open("../rRNA_SSU.fa.gz", "rt") as ungzipped_file:
-                for record in SeqIO.parse(ungzipped_file, "fasta"):
-                    if SILVA_species_name in record.description:
-                        # Adds a label to these records for later identification
-                        record.id = 'rRNA_'+record.id
-                        SeqIO.write(record, filtered_rRNA_SSU, 'fasta')
-    # The SILVA rRNA files use U instead of T, so the following code converts lines that don't start with '>' from U to T so it doesn't mess up bowtie2
-        os.system('sed \'/^>/!y/U/T/\' filtered_rRNA_SSU.fa > filtered_rRNA_SSU_DNA.fa')
-        os.system('rm filtered_rRNA_SSU.fa')
-    else:
-        print('Using already generated filtered_rRNA_SSU_DNA.fa file')
-
-
-    if not os.path.exists('filtered_rRNA_LSU_DNA.fa'):
-        with open("filtered_rRNA_LSU.fa", 'w') as filtered_rRNA_LSU:
-            with gzip.open("../rRNA_LSU.fa.gz", "rt") as ungzipped_file:
-                for record in SeqIO.parse(ungzipped_file, "fasta"):
-                    if SILVA_species_name in record.description:
-                        # Adds a label to these records for later identification
-                        record.id = 'rRNA_'+record.id
-                        SeqIO.write(record, filtered_rRNA_LSU, 'fasta')
-    # The SILVA rRNA files use U instead of T, so the following code converts lines that don't start with '>' from U to T so it doesn't mess up bowtie2
-        os.system('sed \'/^>/!y/U/T/\' filtered_rRNA_LSU.fa > filtered_rRNA_LSU_DNA.fa')
-        os.system('rm filtered_rRNA_LSU.fa')
-    else:
-        print('Using already generated filtered_rRNA_LSU_DNA.fa file')
-
     # Combining the cDNA and ncRNA files for simplicity and then extracting it
     if not os.path.exists('transcriptome.fa'):
         print('Combining cDNA, ncRNA, and rRNA files file')
         os.system('cat cDNA.fa ncRNA.fa filtered_rRNA_SSU_DNA.fa filtered_rRNA_LSU_DNA.fa >> transcriptome.fa')
     else:
         print('\nUsing already made transcriptome file.\n')
-    # The SILVA rRNA files use U instead of T, so the following code converts lines that don't start with '>' from U to T so it doesn't mess up bowtie2
 
 
     # Using the generated transcriptome file to make the bowtie2 index for alignment of probe sequences
@@ -336,6 +289,10 @@ if len(ensembl_id_list) > 0:
 # If there were no inputs error out here
 elif len(gene_symbol_list) == 0 and not args.transcripts_file:
     raise Exception('No genes input, please make sure to use the -g, -fa, -id, or -gf (--gene_symbols, --fasta_file, --ensembl_ids, or --gene_symbols_file) options')
+    
+# Load rRNA transcript IDs from pybiomart
+rRNA_list = utils.load_rRNA_data(species)
+
 
 ##############################################################################
 # MAIN                                                                       #
@@ -369,9 +326,9 @@ for transcript in transcript_targets:
     # Load the alignment data in then calculate the specificity of each probe
     
     if config.Heterodimer_melting_temperature_estimation_method == "Alignment": 
-        offtarget_Tm_scores_list = utils.compute_offtarget_scores_matches(sam_data, transcript, probe_len)
+        offtarget_Tm_scores_list = utils.compute_offtarget_scores_matches(sam_data, transcript, probe_len, rRNA_list)
     elif config.Heterodimer_melting_temperature_estimation_method == "Primer3":
-        offtarget_Tm_scores_list = utils.compute_offtarget_scores_tm(sam_data, transcript, transcriptome_dict, probe_len)
+        offtarget_Tm_scores_list = utils.compute_offtarget_scores_tm(sam_data, transcript, transcriptome_dict, probe_len, rRNA_list)
     else: 
         print("Unsupported heterodimer melting temperature estimation method: " , config.Heterodimer_melting_temperature_estimation_method)
         sys.exit()    
