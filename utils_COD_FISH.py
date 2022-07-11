@@ -35,7 +35,7 @@ def load_transcriptome_dict(transcriptome_file):
         transcriptome_line = transcriptome_line.strip()
         if transcriptome_line[0] == ">":
             transcript_full_name = transcriptome_line[1:]
-            transcript_ensembl_id = transcript_full_name.split(".")[0]
+            transcript_ensembl_id = transcript_full_name.split(' ')[0].split(".")[0]    # Pulls ID and removes version
             transcriptome_dict[transcript_ensembl_id] = ""      # Makes an entry using the name, where the value is blank
         else:
                                                                 # Adds each line to the previously identified ID's sequence
