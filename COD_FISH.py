@@ -9,14 +9,10 @@ This is a script which takes gene names and generates smFISH probes for the gene
 The motivation is to find optimal oligos for targeting RNAs given full transcriptome data.
 """
 
-import sys, os, re
+import sys, os
 import subprocess
 import argparse
 import time
-from Bio import SeqIO
-import gzip
-import pandas as pd
-import primer3
 import multiprocessing as mp
 
 import utils_COD_FISH as utils
