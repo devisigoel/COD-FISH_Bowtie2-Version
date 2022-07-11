@@ -16,10 +16,10 @@ import subprocess
 import primer3
 import pandas as pd
 import pybiomart
-import math, copy
+import math
 import re
 import functools
-import sys, json
+
 
 
 ##############################################################################
