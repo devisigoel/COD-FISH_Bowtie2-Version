@@ -229,7 +229,7 @@ def compare(i1, i2):
     if i1[1] == i2[1] and i1[0] < i2[0]:
         return(-1)
 
-def compute_offtarget_scores_matches(sam_data, target_ensembl_id, probe_len):
+def compute_offtarget_scores_matches(sam_data, target_ensembl_id, probe_len, rRNA_list):
     print('Calculating probe candidate off-target scores\n')
     offtarget_match_scores = {}
 
