@@ -143,7 +143,7 @@ else:
     # Combining the cDNA and ncRNA files for simplicity and then extracting it
     if not os.path.exists('transcriptome.fa'):
         print('Combining cDNA, ncRNA, and rRNA files file')
-        os.system('cat cDNA.fa ncRNA.fa filtered_rRNA_SSU_DNA.fa filtered_rRNA_LSU_DNA.fa >> transcriptome.fa')
+        os.system('cat cDNA.fa ncRNA.fa >> transcriptome.fa')
     else:
         print('\nUsing already made transcriptome file.\n')
 
