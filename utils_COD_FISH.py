@@ -248,8 +248,8 @@ def compute_offtarget_scores_matches(sam_data, target_ensembl_id, probe_len):
         # Note that this normalization only works for the --local mode and must be adjusted for --end-to-end mode which has a different maximum alignment score.
 
         # Punishes 20x for rRNA alignment. Should make it so these probes aren't selected
-        if aligned_ensembl_transcript_id.startswith('rRNA'):
-            match_score = match_score + int(aln[11].split(':')[2])/(2*probe_len)+20
+        if aligned_ensembl_transcript_id in rRNA_list:
+            match_score = match_score + int(aln[11].split(':')[2])/(2*probe_len)+2000
 
         if probe_name not in offtarget_match_scores:
             offtarget_match_scores[probe_name] = 0
@@ -265,7 +265,7 @@ def compute_offtarget_scores_matches(sam_data, target_ensembl_id, probe_len):
 
     return(offTarget_match_scoresList)
 
-def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict, probe_len):
+def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict, probe_len, rRNA_list):
     print('Calculating probe candidate off-target scores\n')
     offtarget_TM_scores = {}
     offtarget_TM_compRNA = {}
@@ -331,8 +331,8 @@ def compute_offtarget_scores_tm(sam_data, target_ensembl_id, transcriptome_dict,
               
         aln_tm = (primer3.calcHeterodimer(probe_seq, aligned_transcript_seq_fragment).tm + 273)/(primer3.calcTm(probe_seq) + 273) + 1
     
-        if aligned_ensembl_transcript_id.startswith('rRNA'):
-            aln_tm = aln_tm + (aln_tm + 20)       
+        if aligned_ensembl_transcript_id in rRNA_list:
+            aln_tm = aln_tm + (aln_tm + 2000)       
  
         offtarget_TM_scores[probe_name] = aln_tm + offtarget_TM_scores[probe_name]
         offtarget_TM_compRNA[probe_name].append(aligned_ensembl_transcript_id)
